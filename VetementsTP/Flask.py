@@ -4,7 +4,7 @@ from PIL import Image #pour manipuler les images
 import numpy as np #traitement des données numeriques
 
 app = Flask(__name__) #creation d'une instance
-model = tf.keras.models.load_model('model/savemodelVet.h5')
+model = tf.keras.models.load_model('../model/savemodelVet.h5')
 
 #classes a prédire
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
@@ -25,19 +25,20 @@ def predict():
     # Process the image
     image = Image.open(file).convert('L')  # ouvrir et convertir l'image en niveaux gris
     image = image.resize((28, 28))  # Resize to 28x28 , c la taille attendue par le modele
-    image_array = np.array(image) / 255.0  #convertir l'image en tableau numpy ,Normalize
-    image_array = np.expand_dims(image_array, axis=0)  # Add batch dimension
+    image_array = np.array(image) / 255.0  #convertir l'image en tableau numpy et Normaliser
+    image_array = np.expand_dims(image_array, axis=0)  #  Ajoute une dimension supplémentaire à un tableau d'image, souvent utilisée pour représenter un lot d'images.
 
     # Predict with the model
-    logits = model.predict(image_array)  # Raw outputs (logits)
-    probabilities = tf.nn.softmax(logits[0]).numpy()  # Apply Softmax
+    logits = model.predict(image_array)  # utiliser le modele pour prédire les résultats a partir de l'image
+    probabilities = tf.nn.softmax(logits[0]).numpy()  # convertir en probabilités entre 0 et 1, et softmax est une fonction
 
     # Get the predicted class and confidence
-    predicted_class = class_names[np.argmax(probabilities)]
-    confidence = 100 * np.max(probabilities)
+    predicted_class = class_names[np.argmax(probabilities)] #pour determiner la classe prédite
+    confidence = 100 * np.max(probabilities) #calcule le pourcentage de confiance pour la classe predite
 
     return f"Predicted: {predicted_class} with {confidence:.2f}% confidence"
 
+#Executer l'application en mode serveur
 if __name__ == '__main__':
     app.run(debug=True)
 
